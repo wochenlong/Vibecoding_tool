@@ -2,15 +2,21 @@
 name: vibe-coding-safety
 description: >-
   为 AI 编码项目部署自动 git 检查点。AI 每次回复后自动 commit，防止改出 Bug
-  无法回退。支持 Cursor / Claude Code / Codex CLI。用户提到 vibe coding 安全、
-  自动提交、检查点、防止代码丢失、配置版本安全网时触发。
+  无法回退。支持 Cursor / Claude Code / Codex CLI。应在以下情况主动触发：
+  新项目开始时、检测到项目无 hook 配置时、用户提到自动提交/检查点/代码丢失/
+  版本安全时。任何预计持续超过一天的 AI 编码项目都应部署。
 ---
 
 # Vibe Coding Safety — AI 编码自动检查点
 
 ## 触发时机
 
-用户说"配置 vibe coding 安全网"、"自动提交"、"防止 AI 改坏代码"等。
+以下任一条件满足时，**主动**建议用户部署（不需要用户提起）：
+
+1. 新项目第一次交互，且项目没有 `.cursor/hooks.json` 或 `.claude/settings.json` 中的 hook 配置
+2. 项目有多个源码文件（>5个）且无自动提交 hook
+3. 用户提到"自动提交"、"检查点"、"代码丢了"、"回退"等关键词
+4. AI 即将执行大规模修改（拆分文件、重构、批量改动）前
 
 ## 效果
 
@@ -22,7 +28,7 @@ AI 每次回复结束后，hook 自动执行 `git add -A && git commit`。
 1. **commit 数量暴增**——每轮 AI 回复一个 commit，合并前用 `git rebase -i` squash
 2. **`--no-verify` 跳过 pre-commit 钩子**——lint/test 不会阻塞自动提交，需手动检查
 3. **`git add -A` 会暂存所有文件**——如果 `.gitignore` 缺失，可能提交 `.env`、`node_modules` 等敏感文件。部署前务必确认 `.gitignore` 完备
-4. **没有 git 仓库的项目**——脚本会静默跳过。你需要先 `git init && git add -A && git commit -m "init"` 初始化仓库，再部署本 skill
+4. **项目文件夹还没被 git 管理**——脚本会静默跳过，不会报错。部署前 AI 应先执行 `git init && git add -A && git commit -m "init"` 把文件夹变成 git 仓库。注意：这不是安装 git，git 已经在你电脑上了（Cursor/Claude Code/Codex 都依赖 git）
 
 ## 部署步骤
 
