@@ -10,12 +10,13 @@ description: >-
 
 AI 每次回复结束 → hook 自动 `git add -A && git commit` → 出 Bug 可精确回退。
 
-## 副作用
+## 副作用与安全机制
 
 - commit 多——合并前 `git rebase -i` squash
 - `--no-verify`——跳过 pre-commit 钩子，推远程前手动检查
-- `git add -A`——部署前确认 `.gitignore` 覆盖 `.env`、`node_modules` 等
+- `git add -A`——脚本会检测 `.gitignore` 是否存在，缺失时写入警告日志
 - 无 git 仓库——脚本静默跳过，需先 `git init && git add -A && git commit -m "init"`
+- 提交失败——不再静默吞掉，记录到 `.git/checkpoint.log` 便于排查
 
 ## 部署
 
