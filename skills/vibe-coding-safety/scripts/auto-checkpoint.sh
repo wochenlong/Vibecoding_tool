@@ -8,7 +8,8 @@ cd "$(git rev-parse --show-toplevel 2>/dev/null)" || { echo '{}'; exit 0; }
 [ ! -f .gitignore ] && echo "[checkpoint] 警告: 没有 .gitignore，敏感文件可能被提交" >> .git/checkpoint.log
 
 n=$(git status --porcelain | wc -l | tr -d ' ')
-msg="[checkpoint] $(date '+%Y-%m-%d %H:%M:%S') ($n files)"
+br=$(git branch --show-current 2>/dev/null || echo "detached")
+msg="[checkpoint] $(date '+%Y-%m-%d %H:%M:%S') [$br] ($n files)"
 if git add -A && git commit -m "$msg" --no-verify >/dev/null 2>&1; then
   echo "$msg" >> .git/checkpoint.log
 else

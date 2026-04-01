@@ -12,7 +12,8 @@ if (-not (Test-Path .gitignore)) { Add-Content $log "[checkpoint] 警告: 没有
 
 $n = ($s | Measure-Object).Count
 $t = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-$msg = "[checkpoint] $t ($n files)"
+$br = git branch --show-current 2>$null; if (-not $br) { $br = "detached" }
+$msg = "[checkpoint] $t [$br] ($n files)"
 git add -A 2>$null
 $result = git commit -m $msg --no-verify 2>&1
 if ($LASTEXITCODE -eq 0) { Add-Content $log $msg }
