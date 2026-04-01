@@ -1,177 +1,108 @@
 ---
 name: vibe-coding-safety
 description: >-
-  Deploy automatic git checkpoint hooks for AI-assisted coding sessions.
-  Prevents losing work when AI introduces bugs by auto-committing after each
-  AI response. Supports Cursor, Claude Code, and Codex CLI. Use when the user
-  mentions vibe coding safety, auto commit, checkpoint, auto save, preventing
-  AI code loss, or setting up version control safety nets.
+  为 AI 编码项目部署自动 git 检查点。AI 每次回复后自动 commit，防止改出 Bug
+  无法回退。支持 Cursor / Claude Code / Codex CLI。用户提到 vibe coding 安全、
+  自动提交、检查点、防止代码丢失、配置版本安全网时触发。
 ---
 
-# Vibe Coding Safety — Auto-Checkpoint for AI Coding
+# Vibe Coding Safety — AI 编码自动检查点
 
-Deploys a "safety net" so every AI response automatically creates a git commit checkpoint.
-If the AI introduces a bug, you can `git log` and roll back to any prior checkpoint.
+## 触发时机
 
-## When to Use
+用户说"配置 vibe coding 安全网"、"自动提交"、"防止 AI 改坏代码"等。
 
-- User asks to set up vibe coding safety / auto-checkpoint / auto-save
-- User lost work because AI changes were never committed
-- User wants to prevent uncommitted AI modifications from piling up
-- Starting a new project that will use AI-assisted development
+## 效果
 
-## How It Works
+AI 每次回复结束后，hook 自动执行 `git add -A && git commit`。
+出 Bug 时 `git log` 找到正常的 checkpoint，`git reset` 即可精确回退。
 
+## 可能的副作用
+
+1. **commit 数量暴增**——每轮 AI 回复一个 commit，合并前用 `git rebase -i` squash
+2. **`--no-verify` 跳过 pre-commit 钩子**——lint/test 不会阻塞自动提交，需手动检查
+3. **`git add -A` 会暂存所有文件**——如果 `.gitignore` 缺失，可能提交 `.env`、`node_modules` 等敏感文件。部署前务必确认 `.gitignore` 完备
+4. **没有 git 仓库的项目**——脚本会静默跳过。你需要先 `git init && git add -A && git commit -m "init"` 初始化仓库，再部署本 skill
+
+## 部署步骤
+
+### 1. 确认项目有 git 仓库
+
+```bash
+git rev-parse --show-toplevel  # 报错说明没有仓库
+git init && git add -A && git commit -m "init"  # 没有就初始化一个
 ```
-AI writes code → AI response ends → Hook fires → git add -A + git commit
-```
 
-Two layers of protection:
+确认 `.gitignore` 覆盖了敏感文件（`.env`、`node_modules/`、密钥等）。
 
-1. **Hook (mechanical)**: Auto-commits after every AI response — zero human effort
-2. **Rule (behavioral)**: Tells the AI to commit after each logical unit of work
+### 2. 检测 AI 工具并部署 hook
 
-## Step 1: Detect the AI Tool
+根据项目中存在的配置目录判断工具类型，为每个检测到的工具部署配置。
 
-Check which tool is active by looking for config directories:
+**Cursor**（检测：`.cursor/` 目录存在）
 
-| Tool | Indicator |
-|------|-----------|
-| Cursor | `.cursor/` exists or user says "Cursor" |
-| Claude Code | `.claude/` exists or user says "Claude Code" |
-| Codex CLI | `.codex/` exists or user says "Codex" |
-
-If unclear, ask the user. Deploy for **all detected tools** in one pass.
-
-## Step 2: Deploy Hook Config
-
-### Cursor
-
-Create `.cursor/hooks.json`:
-
+创建 `.cursor/hooks.json`：
 ```json
 {
   "version": 1,
   "hooks": {
     "stop": [
-      {
-        "command": "powershell -ExecutionPolicy Bypass -File .cursor/hooks/auto-checkpoint.ps1"
-      }
+      { "command": "powershell -ExecutionPolicy Bypass -File .cursor/hooks/auto-checkpoint.ps1" }
     ]
   }
 }
 ```
+Mac/Linux 把 command 改成 `bash .cursor/hooks/auto-checkpoint.sh`。
 
-On Mac/Linux, replace the command with:
+将 [scripts/auto-checkpoint.ps1](scripts/auto-checkpoint.ps1) 或 [scripts/auto-checkpoint.sh](scripts/auto-checkpoint.sh) 复制到 `.cursor/hooks/`。
 
-```json
-{ "command": "bash .cursor/hooks/auto-checkpoint.sh" }
-```
+**Claude Code**（检测：`.claude/` 目录存在）
 
-### Claude Code
-
-Add to `.claude/settings.json` (create if missing, merge into existing):
-
+在 `.claude/settings.json` 中添加（已有则合并）：
 ```json
 {
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit|CreateFile",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/auto-checkpoint.sh"
-          }
-        ]
-      }
-    ]
+    "PostToolUse": [{
+      "matcher": "Write|Edit|MultiEdit|CreateFile",
+      "hooks": [{ "type": "command", "command": "bash .claude/hooks/auto-checkpoint.sh" }]
+    }]
   }
 }
 ```
+Windows 把 command 改成 `powershell -ExecutionPolicy Bypass -File .claude/hooks/auto-checkpoint.ps1`。
 
-On Windows, use the `.ps1` variant:
+将脚本复制到 `.claude/hooks/`。
 
-```json
-{
-  "type": "command",
-  "command": "powershell -ExecutionPolicy Bypass -File .claude/hooks/auto-checkpoint.ps1"
-}
-```
+**Codex CLI**（检测：`.codex/` 目录存在）
 
-### Codex CLI
-
-Create `.codex/hooks.json`:
-
+创建 `.codex/hooks.json`：
 ```json
 {
   "hooks": [
-    {
-      "event": "Stop",
-      "command": ["bash", ".codex/hooks/auto-checkpoint.sh"]
-    }
+    { "event": "Stop", "command": ["bash", ".codex/hooks/auto-checkpoint.sh"] }
   ]
 }
 ```
 
-Ensure `config.toml` has hooks enabled:
+将脚本复制到 `.codex/hooks/`，确认 `config.toml` 有 `codex_hooks = true`。
 
-```toml
-[features]
-codex_hooks = true
-```
+### 3. 部署行为规范
 
-## Step 3: Deploy the Checkpoint Scripts
-
-Copy the appropriate script from this skill's `scripts/` directory:
-
-- **Windows**: `scripts/auto-checkpoint.ps1`
-- **Mac/Linux**: `scripts/auto-checkpoint.sh`
-
-Place the script in the tool's hooks directory:
-
-| Tool | Script Location |
-|------|----------------|
-| Cursor | `.cursor/hooks/auto-checkpoint.ps1` (or `.sh`) |
-| Claude Code | `.claude/hooks/auto-checkpoint.ps1` (or `.sh`) |
-| Codex | `.codex/hooks/auto-checkpoint.sh` |
-
-On Mac/Linux, make the script executable: `chmod +x <path>`
-
-Read the scripts from this skill directory and write them to the target locations:
-- PowerShell script: [scripts/auto-checkpoint.ps1](scripts/auto-checkpoint.ps1)
-- Bash script: [scripts/auto-checkpoint.sh](scripts/auto-checkpoint.sh)
-
-## Step 4: Deploy the Safety Rule
-
-Create a rule file that tells the AI to commit proactively.
-
-| Tool | Rule Location |
-|------|--------------|
+| 工具 | 写入位置 |
+|------|---------|
 | Cursor | `.cursor/rules/vibe-coding-safety.md` |
-| Claude Code | Append to `CLAUDE.md` |
-| Codex | Append to `AGENTS.md` |
+| Claude Code | 追加到 `CLAUDE.md` |
+| Codex | 追加到 `AGENTS.md` |
 
-Rule content:
+规范内容：
 
-```markdown
-## Vibe Coding Safety — Commit Discipline
-
-1. After completing each independent feature, fix, or refactor: `git add -A && git commit -m "type: description"`
-2. Before any high-risk operation (file splits, bulk renames, core system changes): commit current state first.
-3. Never run destructive git commands (checkout -f, clean -fd, reset --hard) without stashing or committing first.
-4. This project has auto-checkpoint hooks as a fallback, but meaningful manual commits are always preferred.
+```
+## 提交纪律
+1. 每完成一个独立功能后立即 git add -A && git commit -m "type: 描述"
+2. 高风险操作前先提交当前状态
+3. 禁止在未提交的工作区执行 git checkout -f / git clean -fd / git reset --hard
 ```
 
-## Step 5: Verify
+### 4. 验证
 
-1. Check `git status` — should be clean after deployment (commit the hook files themselves).
-2. Confirm the hook fires: make a trivial change, let the AI respond, then check `git log --oneline -3` for a `[checkpoint]` commit.
-
-## Cleanup Note
-
-Checkpoint commits can be squashed before merging to main:
-
-```bash
-git rebase -i HEAD~N   # squash [checkpoint] commits into meaningful ones
-```
+改一个文件，等 AI 回复结束，检查 `git log --oneline -3` 是否出现 `[checkpoint]` 提交。
