@@ -155,48 +155,50 @@ clawbot skills browse
 clawbot skills install google-calendar github-assistant daily-briefing
 ```
 
-#### 欧美游戏策划推荐 Skills
+#### 欧美本土文案策划推荐 Skills
 
-以下 Skills 按「策划工作流」分类整理，覆盖从世界观构建到系统设计到文档输出的完整链路。
+以下 Skills 按「文案工作流」分类整理，覆盖从调研洞察到文案撰写到投放优化的完整链路。安全评级来自 ClawHub 官方扫描。
 
-**游戏设计 & GDD 生成**
+**文案撰写 & 框架**
 
-| Skill | 来源 | 热度 | 说明 |
-|-------|------|------|------|
-| `game-cog` | ClawHub | DeepResearch Bench #1 | 一站式游戏设计推理引擎：GDD、关卡设计、角色美术、Tileset、UI、音乐、3D 模型，支持 Unity/Unreal 导出 |
-| `game-architect` | ClawHub | — | 游戏系统设计参考库：战斗、技能、AI、UI、多人、叙事等系统范式选型指南 |
-| `gdd-writer` | LobeHub | v1.0.2 | 精简 GDD 生成器：核心循环、机制、数值、进度、里程碑，适合独立开发者快速出文档 |
-
-```bash
-clawbot skills install game-cog game-architect
-```
-
-**世界观 & 叙事设计**
-
-| Skill | 来源 | 热度 | 说明 |
-|-------|------|------|------|
-| `worldbuilding` | LobeHub | 高下载量 | 虚构世界生成：地理、文化、政治、魔法/科技体系、宗教、经济，含内部一致性交叉校验 |
-| `create-world` | LobeHub | — | 世界观项目脚手架：自动生成标准化文件夹结构（地理/历史/文化/阵营/魔法/NPC/任务/物品/地图） |
-| `narrative-story-structure-game` | LobeHub | — | 游戏叙事框架：分支剧情、玩家主体性、对话树、多结局、后果系统、涌现叙事设计 |
-| `storybook-generator` | ClawHub | 246 下载 | 视觉故事生成器：插画叙事、分镜脚本，适合概念阶段的视觉化表达 |
-
-**通用写作 & 文档**
-
-| Skill | 来源 | 热度 | 说明 |
-|-------|------|------|------|
-| `book-writing` | ClawHub | 1.4k 下载 / 17 安装 | 长文写作：章节架构、语气一致性、修订工作流，适合写系统策划案、世界观圣经 |
-| `write` | ClawHub | 905 下载 | 内容写作引擎：规划→草稿→版本管理→质量审计，适合迭代式策划文档 |
+| Skill | 下载量 | 安装量 | 安全 | 说明 |
+|-------|--------|--------|------|------|
+| `copywriting-pro` | 1.9k | 13 | ✅ Benign | 专业文案 SOP：AIDA / PAS / FAB / BAB 框架全覆盖，含 VoC（用户原话挖掘）、4U 标题公式、Flesch-Kincaid 六年级可读性标准、Pre-Flight 发布清单。适合广告、落地页、邮件、社媒、产品描述、CTA |
+| `marketing-skills` | 13.9k | 110 | ✅ Benign | **23 个营销模块合集**（ClawHub 第二热门营销 Skill）：copywriting、copy-editing、email-sequence、social-content、paid-ads、SEO、CRO、定价策略、竞品分析等，每个模块含可直接复用的清单和模板 |
+| `marketing-mode` | 19.4k | 154 | ⚠️ 中风险 | **ClawHub 下载量最高的营销 Skill**（127⭐）：「Mark the Marketer」人格注入 140+ 策略，覆盖 AIDA / PAS / Hook Model，SEO / 社媒 / 邮件 / 转化优化。注意：安全扫描标记 medium suspicious（安装元数据不一致），内容本身无害 |
 
 ```bash
-clawbot skills install book-writing write storybook-generator
+# 推荐首装（安全评级 Benign）
+clawbot skills install copywriting-pro marketing-skills
+
+# 可选（功能强但有安全提示，建议先 info 查看详情）
+clawbot skills info marketing-mode
+clawbot skills install marketing-mode
 ```
 
-#### 相关 GitHub 开源项目（非 ClawBot Skill，但策划高度相关）
+**广告投放 & 内容生成**
 
-| 项目 | Stars | 说明 |
-|------|-------|------|
-| [Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) | 7.6k+ | 48 个 AI Agent + 36 个工作流 Skill，模拟完整游戏工作室层级（总监→部门主管→专员），含设计评审和质量门禁 |
-| [openagenticgame-gdd](https://github.com/wanghaisheng/GDDMarkdownTemplate) | — | 面向 AI 的 GDD Markdown 模板：15 章完整体系、6 大细化模块、8 种游戏类型适配、中英双语 |
+| Skill | 下载量 | 安装量 | 安全 | 说明 |
+|-------|--------|--------|------|------|
+| `adcp-advertising` | 2.7k | 1 | — | 广告投放自动化：创意制作、媒体购买、预算管理，支持 Display / Video / CTV / Audio 多渠道，实时 CTR/ROI 追踪与预算再分配 |
+| `marketing-drafter` | 2.1k | 20 | ⚠️ 中风险 | 多渠道内容生成器：邮件 / 社媒 / 广告 / 落地页，品牌调性一致、A/B 测试变体、批量处理。**注意**：安全扫描发现未声明的 API Key 依赖和缺失代码文件，安装前需确认 |
+
+```bash
+clawbot skills install adcp-advertising
+
+# marketing-drafter 有安全提示，安装前务必检查
+clawbot skills info marketing-drafter
+```
+
+**搭配建议（文案策划完整工具链）**
+
+```
+调研洞察            →  撰写初稿          →  打磨优化           →  投放分发
+copywriting-pro     copywriting-pro     marketing-skills    adcp-advertising
+(VoC 用户原话挖掘)   (AIDA/PAS 框架)     (copy-editing 模块)  (多渠道投放)
+                    marketing-drafter   (CRO / A/B 模块)    (ROI 追踪)
+                    (批量生成变体)
+```
 
 > **安全提醒**：ClawHub 上约 7.6% 的 Skills 存在安全风险（Skills 以全权限运行且无沙箱隔离）。只安装经过验证的发布者的 Skills，避免使用新发布、用户量少的 Skills。安装前可用 `clawbot skills info <skill-name>` 查看作者和下载量。
 
