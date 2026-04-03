@@ -151,11 +151,54 @@ clawbot channel list
 # 浏览可用 Skills
 clawbot skills browse
 
-# 推荐安装
+# 通用效率（日历、GitHub、每日简报）
 clawbot skills install google-calendar github-assistant daily-briefing
 ```
 
-> **安全提醒**：ClawHub 上约 7.6% 的 Skills 存在安全风险，只安装经过验证的发布者的 Skills，避免使用新发布、用户量少的 Skills。
+#### 欧美游戏策划推荐 Skills
+
+以下 Skills 按「策划工作流」分类整理，覆盖从世界观构建到系统设计到文档输出的完整链路。
+
+**游戏设计 & GDD 生成**
+
+| Skill | 来源 | 热度 | 说明 |
+|-------|------|------|------|
+| `game-cog` | ClawHub | DeepResearch Bench #1 | 一站式游戏设计推理引擎：GDD、关卡设计、角色美术、Tileset、UI、音乐、3D 模型，支持 Unity/Unreal 导出 |
+| `game-architect` | ClawHub | — | 游戏系统设计参考库：战斗、技能、AI、UI、多人、叙事等系统范式选型指南 |
+| `gdd-writer` | LobeHub | v1.0.2 | 精简 GDD 生成器：核心循环、机制、数值、进度、里程碑，适合独立开发者快速出文档 |
+
+```bash
+clawbot skills install game-cog game-architect
+```
+
+**世界观 & 叙事设计**
+
+| Skill | 来源 | 热度 | 说明 |
+|-------|------|------|------|
+| `worldbuilding` | LobeHub | 高下载量 | 虚构世界生成：地理、文化、政治、魔法/科技体系、宗教、经济，含内部一致性交叉校验 |
+| `create-world` | LobeHub | — | 世界观项目脚手架：自动生成标准化文件夹结构（地理/历史/文化/阵营/魔法/NPC/任务/物品/地图） |
+| `narrative-story-structure-game` | LobeHub | — | 游戏叙事框架：分支剧情、玩家主体性、对话树、多结局、后果系统、涌现叙事设计 |
+| `storybook-generator` | ClawHub | 246 下载 | 视觉故事生成器：插画叙事、分镜脚本，适合概念阶段的视觉化表达 |
+
+**通用写作 & 文档**
+
+| Skill | 来源 | 热度 | 说明 |
+|-------|------|------|------|
+| `book-writing` | ClawHub | 1.4k 下载 / 17 安装 | 长文写作：章节架构、语气一致性、修订工作流，适合写系统策划案、世界观圣经 |
+| `write` | ClawHub | 905 下载 | 内容写作引擎：规划→草稿→版本管理→质量审计，适合迭代式策划文档 |
+
+```bash
+clawbot skills install book-writing write storybook-generator
+```
+
+#### 相关 GitHub 开源项目（非 ClawBot Skill，但策划高度相关）
+
+| 项目 | Stars | 说明 |
+|------|-------|------|
+| [Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios) | 7.6k+ | 48 个 AI Agent + 36 个工作流 Skill，模拟完整游戏工作室层级（总监→部门主管→专员），含设计评审和质量门禁 |
+| [openagenticgame-gdd](https://github.com/wanghaisheng/GDDMarkdownTemplate) | — | 面向 AI 的 GDD Markdown 模板：15 章完整体系、6 大细化模块、8 种游戏类型适配、中英双语 |
+
+> **安全提醒**：ClawHub 上约 7.6% 的 Skills 存在安全风险（Skills 以全权限运行且无沙箱隔离）。只安装经过验证的发布者的 Skills，避免使用新发布、用户量少的 Skills。安装前可用 `clawbot skills info <skill-name>` 查看作者和下载量。
 
 ## Output Format（输出格式）
 
